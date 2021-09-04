@@ -33,7 +33,7 @@ match configuration {
               <xnm:warning> {
                 <message> {
                   expr "MTU on interface ";
-                  expr $int;
+                  expr $if_name;
                   expr ".";
                   expr $unit;
                   expr " is not set to 9216";
