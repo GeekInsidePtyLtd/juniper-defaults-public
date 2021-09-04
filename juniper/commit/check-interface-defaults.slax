@@ -28,7 +28,7 @@ match configuration {
         /* Check to see if the interface name is an eligble ethernet interface (i.e in the ELIGIBLE_ETHER_INT_TYPES node set). */
         if (not(jcs:empty($ELIGIBLE_ETHER_INT_TYPES/type[starts-with($if_name, .)]))) {
             if (not(jcs:empty($toplevel/interfaces/interface[name == $if_name]))) {
-              var $mtu = interfaces/interface[name == $if_name]/mtu;
+              var $mtu = mtu
               if (not ($mtu == 9216)) {
                 <xnm:warning> {
                   <message> {
