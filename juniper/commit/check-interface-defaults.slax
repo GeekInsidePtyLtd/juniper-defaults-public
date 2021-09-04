@@ -1,35 +1,62 @@
 version 1.0;
+
 ns junos = "http://xml.juniper.net/junos/*/junos";
 ns xnm = "http://xml.juniper.net/xnm/1.1/xnm";
 ns jcs = "http://xml.juniper.net/junos/commit-scripts/1.0";
-ns ext = "http://xmlsoft.org/XSLT/namespace";
 
 import "../import/junos.xsl";
 
-/*
- * This commit-script ensures that all interfaces are configured in a standardised way
- */
+/* Whitelist of interfaces that are eligble */
+var $ELIGIBLE_ETHER_INT_TYPES := {
+    <type> 'ae-';     /* Aggregated Ethernet interface */
+    <type> 'et-';     /* 100-Gigabit Ethernet interface */
+    <type> 'fe-';     /* Fast Ethernet interface */
+    <type> 'ge-';     /* Gigabit Ethernet interface */
+    <type> 'xe-';     /* 10-Gigabit Ethernet interface */
+}
 
 match configuration {
-  for-each (interfaces/interface) {
-    var $int = name;
-    var $unit = unit/name;
-    var $desc = unit/description;
-    var $mtu = mtu;
+    var $toplevel = .;
 
-    if (not ($mtu == 9216)) {
-      <xnm:warning> {
-        <message> {
-          expr "MTU on backbone interface";
-          expr $int;
-          expr ".";
-          expr $unit;
-          expr " is not set to 4484";
-          expr " (";
-          expr $mtu;
-          expr ")";
+    /* Get all interfaces on the box */
+    var $all_ifs = jcs:invoke("get-interface-information");
+
+    /* Set Config for Physical Interfaces */
+    for-each ($all_ifs/physical-interface) {
+        var $if_name = name;
+
+        /* Check to see if the interface name is an eligble ethernet interface
+          (i.e in the ELIGIBLE_ETHER_INT_TYPES node set). */
+        if (not(jcs:empty($ELIGIBLE_ETHER_INT_TYPES/type[starts-with($if_name, .)]))) {
+            var $mtu = mtu;
+
+            if (not ($mtu == 9216)) {
+              <xnm:warning> {
+                <message> {
+                  expr "MTU on interface ";
+                  expr $int;
+                  expr ".";
+                  expr $unit;
+                  expr " is not set to 9216";
+                  expr " (";
+                  expr $mtu;
+                  expr ")";
+                    }
+                  }
             }
-          }
+
+            /* Only disable ethernet interfaces that are not defined */
+            if (jcs:empty($toplevel/interfaces/interface[name == $if_name])) {
+                expr jcs:trace("Automatically disabling interface '" _ $if_name _ "' because it wasn't defined in the config.");
+
+                call jcs:emit-change($dot = $toplevel/interfaces, $tag = 'transient-change') {
+                    with $content = {
+                        <interface> {
+                            <name> $if_name;
+                            <disable>;
+                        }
+                    }
+                }
+            }
         }
     }
-}
