@@ -1,0 +1,33 @@
+version 1.0;
+ns junos = "http://xml.juniper.net/junos/*/junos";
+ns xnm = "http://xml.juniper.net/xnm/1.1/xnm";
+ns jcs = "http://xml.juniper.net/junos/commit-scripts/1.0";
+ns ext = "http://xmlsoft.org/XSLT/namespace";
+
+import "../import/junos.xsl";
+
+/*
+ * This commit-script ensures that all interfaces are configured in a standardised way
+ */
+
+match configuration {
+        for-each (interfaces/interface) {
+                var $int = name;
+                var $unit = unit/name;
+                var $desc = unit/description;
+                var $mtu = mtu;
+
+                if (not ($mtu == 9216)) {
+                  <xnm:warning> {
+                          <message> {
+                                  expr "MTU on backbone interface";
+                                  expr $int;
+                                  expr ".";
+                                  expr $unit;
+                                  expr " is not set to 4484";
+                                  expr " (";
+                                  expr $mtu;
+                                  expr ")";
+                          }
+                  }
+}
