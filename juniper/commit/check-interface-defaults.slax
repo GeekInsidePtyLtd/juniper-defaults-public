@@ -11,24 +11,25 @@ import "../import/junos.xsl";
  */
 
 match configuration {
-        for-each (interfaces/interface) {
-                var $int = name;
-                var $unit = unit/name;
-                var $desc = unit/description;
-                var $mtu = mtu;
+  for-each (interfaces/interface) {
+    var $int = name;
+    var $unit = unit/name;
+    var $desc = unit/description;
+    var $mtu = mtu;
 
-                if (not ($mtu == 9216)) {
-                  <xnm:warning> {
-                          <message> {
-                                  expr "MTU on backbone interface";
-                                  expr $int;
-                                  expr ".";
-                                  expr $unit;
-                                  expr " is not set to 4484";
-                                  expr " (";
-                                  expr $mtu;
-                                  expr ")";
-                          }
-                  }
+    if (not ($mtu == 9216)) {
+      <xnm:warning> {
+        <message> {
+          expr "MTU on backbone interface";
+          expr $int;
+          expr ".";
+          expr $unit;
+          expr " is not set to 4484";
+          expr " (";
+          expr $mtu;
+          expr ")";
+            }
+          }
         }
+    }
 }
