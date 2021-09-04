@@ -34,8 +34,6 @@ match configuration {
                 <message> {
                   expr "MTU on interface ";
                   expr $if_name;
-                  expr ".";
-                  expr $unit;
                   expr " is not set to 9216";
                   expr " (";
                   expr $mtu;
