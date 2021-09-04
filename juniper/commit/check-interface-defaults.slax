@@ -25,8 +25,7 @@ match configuration {
     for-each ($all_ifs/physical-interface) {
         var $if_name = name;
 
-        /* Check to see if the interface name is an eligble ethernet interface
-          (i.e in the ELIGIBLE_ETHER_INT_TYPES node set). */
+        /* Check to see if the interface name is an eligble ethernet interface (i.e in the ELIGIBLE_ETHER_INT_TYPES node set). */
         if (not(jcs:empty($ELIGIBLE_ETHER_INT_TYPES/type[starts-with($if_name, .)]))) {
             var $mtu = mtu;
 
