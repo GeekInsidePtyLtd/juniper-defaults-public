@@ -27,8 +27,8 @@ match configuration {
 
         /* Check to see if the interface name is an eligble ethernet interface (i.e in the ELIGIBLE_ETHER_INT_TYPES node set). */
         if (not(jcs:empty($ELIGIBLE_ETHER_INT_TYPES/type[starts-with($if_name, .)]))) {
-            var $mtu = mtu;
             if (not(jcs:empty($toplevel/interfaces/interface[name == $if_name]))) {
+              var $mtu = interfaces/interface[name == $if_name]/mtu;
               if (not ($mtu == 9216)) {
                 <xnm:warning> {
                   <message> {
@@ -40,20 +40,6 @@ match configuration {
                     expr ")";
                     }
                   }
-                }
-            }
-
-            /* Only disable ethernet interfaces that are not defined */
-            if (jcs:empty($toplevel/interfaces/interface[name == $if_name])) {
-                expr jcs:trace("Automatically disabling interface '" _ $if_name _ "' because it wasn't defined in the config.");
-
-                call jcs:emit-change($dot = $toplevel/interfaces, $tag = 'transient-change') {
-                    with $content = {
-                        <interface> {
-                            <name> $if_name;
-                            <disable>;
-                        }
-                    }
                 }
             }
         }
