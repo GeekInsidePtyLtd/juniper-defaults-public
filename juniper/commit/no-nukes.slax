@@ -78,20 +78,20 @@ date: 8 August 2014
          }
     }
     /*
-    - Making sure the whole protocols/isis section is not deleted/deactivated.
+    - Making sure the whole protocols/ospf section is not deleted/deactivated.
     - The commit will fail if this is the case.
      */
-    call error-if-missing($must = protocols/isis, $statement = "protocols isis") {
+    call error-if-missing($must = protocols/ospf, $statement = "protocols ospf") {
         with $message = {
-            expr "The ISIS protocol is missing, failing commit..";
+            expr "The OSPF protocol is missing, failing commit..";
          }
     }
     /*
     - Check that the protocol is not disabled...
      */
-    call error-if-present($must = protocols/isis/disable) {
+    call error-if-present($must = protocols/ospf/disable) {
         with $message = {
-            expr "The ISIS protocol is disabled, failing commit..";
+            expr "The OSPF protocol is disabled, failing commit..";
          }
     }
 
